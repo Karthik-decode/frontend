@@ -1,0 +1,603 @@
+.plan-page {
+  min-height: 100vh;
+
+  padding: 30px 20px 110px;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      #dff5e8 0,
+      transparent 30%
+    ),
+    var(--soft-green);
+}
+
+.plan-container {
+  width: 100%;
+  max-width: 900px;
+
+  margin: 0 auto;
+}
+
+.plan-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  margin-bottom: 25px;
+}
+
+.plan-header > div:nth-child(2) {
+  flex: 1;
+}
+
+.plan-header-label,
+.plan-section-title p,
+.selected-day-heading p {
+  color: var(--primary-green);
+
+  font-size: 11px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.2px;
+}
+
+.plan-header h1 {
+  color: var(--text-dark);
+
+  font-size: 29px;
+
+  margin-top: 3px;
+}
+
+.plan-header p:last-child {
+  color: var(--text-medium);
+
+  font-size: 13px;
+
+  line-height: 1.4;
+
+  margin-top: 5px;
+}
+
+.plan-logo {
+  width: 52px;
+  height: 52px;
+
+  object-fit: contain;
+}
+
+/* Progress */
+
+.progress-card {
+  background: var(--dark-green);
+
+  color: white;
+
+  border-radius: var(--radius);
+
+  padding: 25px;
+
+  box-shadow: var(--shadow);
+
+  margin-bottom: 14px;
+}
+
+.progress-main {
+  display: flex;
+
+  align-items: center;
+
+  gap: 20px;
+}
+
+.progress-circle {
+  width: 100px;
+  height: 100px;
+
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.12);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-direction: column;
+
+  flex-shrink: 0;
+}
+
+.progress-circle strong {
+  font-size: 25px;
+}
+
+.progress-circle span {
+  font-size: 10px;
+
+  opacity: 0.7;
+}
+
+.progress-label {
+  font-size: 10px;
+
+  letter-spacing: 1px;
+
+  opacity: 0.7;
+}
+
+.progress-text h2 {
+  font-size: 21px;
+
+  margin-top: 4px;
+}
+
+.progress-text > p:last-child {
+  font-size: 13px;
+
+  opacity: 0.8;
+
+  margin-top: 4px;
+}
+
+.progress-bar {
+  height: 8px;
+
+  background: rgba(255, 255, 255, 0.16);
+
+  border-radius: 20px;
+
+  overflow: hidden;
+
+  margin-top: 22px;
+}
+
+.progress-bar div {
+  height: 100%;
+
+  background: white;
+
+  border-radius: inherit;
+
+  transition: width 0.3s ease;
+}
+
+/* Stats */
+
+.plan-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 10px;
+
+  margin-bottom: 28px;
+}
+
+.plan-stats > div {
+  background: white;
+
+  border-radius: 15px;
+
+  padding: 15px;
+
+  box-shadow: var(--shadow);
+
+  position: relative;
+}
+
+.stat-dot {
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+
+  display: block;
+
+  margin-bottom: 9px;
+}
+
+.completed-dot {
+  background: var(--primary-green);
+}
+
+.partial-dot {
+  background: var(--warning);
+}
+
+.missed-dot {
+  background: var(--danger);
+}
+
+.upcoming-dot {
+  background: #b9c9c1;
+}
+
+.plan-stats strong {
+  display: block;
+
+  font-size: 21px;
+
+  color: var(--text-dark);
+}
+
+.plan-stats small {
+  display: block;
+
+  color: var(--text-light);
+
+  font-size: 11px;
+
+  margin-top: 2px;
+}
+
+/* Calendar */
+
+.calendar-section {
+  margin-bottom: 20px;
+}
+
+.plan-section-title {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 14px;
+}
+
+.plan-section-title h2 {
+  color: var(--text-dark);
+
+  font-size: 21px;
+
+  margin-top: 3px;
+}
+
+.plan-section-title > span {
+  color: var(--text-light);
+
+  font-size: 12px;
+}
+
+.day-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, 1fr);
+
+  gap: 10px;
+}
+
+.day-card {
+  min-height: 105px;
+
+  border: 2px solid transparent;
+
+  background: white;
+
+  border-radius: 15px;
+
+  padding: 12px 9px;
+
+  box-shadow: var(--shadow);
+
+  text-align: left;
+
+  position: relative;
+
+  transition: 0.2s;
+}
+
+.day-card:hover {
+  transform: translateY(-2px);
+}
+
+.day-card.selected {
+  border-color: var(--primary-green);
+}
+
+.day-card > span {
+  display: block;
+
+  color: var(--primary-green);
+
+  font-size: 10px;
+
+  font-weight: 700;
+}
+
+.day-card strong {
+  display: block;
+
+  color: var(--text-dark);
+
+  font-size: 14px;
+
+  margin-top: 7px;
+}
+
+.day-card small {
+  display: block;
+
+  color: var(--text-light);
+
+  font-size: 11px;
+
+  margin-top: 3px;
+}
+
+.day-card i {
+  position: absolute;
+
+  top: 9px;
+  right: 9px;
+
+  width: 21px;
+  height: 21px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  font-size: 12px;
+
+  font-style: normal;
+}
+
+.day-card.status-completed {
+  background: #eef9f2;
+}
+
+.day-card.status-completed i {
+  background: var(--primary-green);
+
+  color: white;
+}
+
+.day-card.status-partial {
+  background: #fff8e9;
+}
+
+.day-card.status-partial i {
+  background: var(--warning);
+
+  color: white;
+}
+
+.day-card.status-missed {
+  background: #fff0f0;
+}
+
+.day-card.status-missed i {
+  background: var(--danger);
+
+  color: white;
+}
+
+/* Selected Day */
+
+.selected-day-card {
+  background: white;
+
+  border-radius: var(--radius);
+
+  padding: 24px;
+
+  box-shadow: var(--shadow);
+
+  margin-bottom: 18px;
+}
+
+.selected-day-heading {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+}
+
+.selected-day-heading h2 {
+  color: var(--text-dark);
+
+  font-size: 20px;
+
+  margin-top: 3px;
+}
+
+.selected-day-icon {
+  font-size: 28px;
+}
+
+.selected-day-description {
+  color: var(--text-medium);
+
+  font-size: 13px;
+
+  line-height: 1.5;
+
+  margin-top: 10px;
+}
+
+.status-buttons {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 10px;
+
+  margin-top: 18px;
+}
+
+.status-buttons button {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  text-align: left;
+
+  border: 1px solid var(--border);
+
+  background: white;
+
+  border-radius: 13px;
+
+  padding: 13px;
+
+  color: var(--text-dark);
+
+  transition: 0.2s;
+}
+
+.status-buttons button > span {
+  width: 34px;
+  height: 34px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: var(--light-green);
+
+  color: var(--dark-green);
+
+  font-weight: 800;
+
+  flex-shrink: 0;
+}
+
+.status-buttons button strong {
+  display: block;
+
+  font-size: 12px;
+}
+
+.status-buttons button small {
+  display: block;
+
+  color: var(--text-light);
+
+  font-size: 10px;
+
+  margin-top: 2px;
+}
+
+.status-buttons button.active.completed {
+  border-color: var(--primary-green);
+
+  background: #eef9f2;
+}
+
+.status-buttons button.active.partial {
+  border-color: var(--warning);
+
+  background: #fff8e9;
+}
+
+.status-buttons button.active.missed {
+  border-color: var(--danger);
+
+  background: #fff0f0;
+}
+
+/* Tip */
+
+.plan-tip {
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 12px;
+
+  background: var(--mint-green);
+
+  border-radius: var(--radius);
+
+  padding: 18px;
+}
+
+.plan-tip > span {
+  font-size: 22px;
+}
+
+.plan-tip strong {
+  color: var(--dark-green);
+
+  font-size: 14px;
+}
+
+.plan-tip p {
+  color: var(--text-medium);
+
+  font-size: 12px;
+
+  line-height: 1.5;
+
+  margin-top: 4px;
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+  .plan-page {
+    padding: 20px 14px 100px;
+  }
+
+  .plan-header h1 {
+    font-size: 24px;
+  }
+
+  .plan-logo {
+    width: 43px;
+    height: 43px;
+  }
+
+  .progress-main {
+    gap: 14px;
+  }
+
+  .progress-circle {
+    width: 82px;
+    height: 82px;
+  }
+
+  .progress-circle strong {
+    font-size: 21px;
+  }
+
+  .plan-stats {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .day-grid {
+    grid-template-columns:
+      repeat(3, 1fr);
+  }
+
+  .status-buttons {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 400px) {
+  .day-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+}

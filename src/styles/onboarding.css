@@ -1,0 +1,221 @@
+.onboarding-page {
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+
+  padding: 30px 20px;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      #dff5e8 0,
+      transparent 35%
+    ),
+    var(--soft-green);
+}
+
+.onboarding-container {
+  width: 100%;
+  max-width: 620px;
+}
+
+.onboarding-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.onboarding-logo {
+  width: 60px;
+  height: 60px;
+
+  object-fit: contain;
+
+  margin-bottom: 12px;
+}
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  margin-bottom: 25px;
+}
+
+.step {
+  width: 34px;
+  height: 6px;
+
+  border-radius: 20px;
+
+  background: #d8e8de;
+}
+
+.step.active {
+  background: var(--primary-green);
+}
+
+.step.completed {
+  background: var(--dark-green);
+}
+
+.onboarding-card {
+  background: var(--white);
+
+  border-radius: 24px;
+
+  padding: 34px;
+
+  box-shadow: var(--shadow);
+}
+
+.onboarding-card h1 {
+  font-size: 27px;
+
+  color: var(--text-dark);
+
+  margin-bottom: 8px;
+}
+
+.onboarding-description {
+  color: var(--text-medium);
+
+  line-height: 1.5;
+
+  margin-bottom: 25px;
+}
+
+.profile-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 18px;
+}
+
+.profile-grid .full-width {
+  grid-column: 1 / -1;
+}
+
+.option-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 15px;
+
+  margin-top: 20px;
+}
+
+.option-card {
+  border: 2px solid var(--border);
+
+  border-radius: 18px;
+
+  padding: 22px 15px;
+
+  background: white;
+
+  cursor: pointer;
+
+  text-align: center;
+
+  transition: 0.2s;
+}
+
+.option-card:hover {
+  border-color: var(--primary-green);
+
+  transform: translateY(-2px);
+}
+
+.option-card.selected {
+  border-color: var(--primary-green);
+
+  background: var(--light-green);
+
+  box-shadow:
+    0 0 0 3px rgba(59, 155, 103, 0.08);
+}
+
+.option-icon {
+  font-size: 34px;
+
+  margin-bottom: 10px;
+}
+
+.option-title {
+  font-size: 16px;
+
+  font-weight: 700;
+
+  color: var(--text-dark);
+}
+
+.option-description {
+  font-size: 13px;
+
+  color: var(--text-medium);
+
+  margin-top: 5px;
+
+  line-height: 1.4;
+}
+
+.onboarding-actions {
+  display: flex;
+
+  gap: 12px;
+
+  margin-top: 30px;
+}
+
+.onboarding-actions button {
+  flex: 1;
+}
+
+.back-button {
+  border: 1px solid var(--border);
+
+  background: white;
+
+  color: var(--text-dark);
+
+  border-radius: 12px;
+
+  padding: 14px;
+
+  font-size: 15px;
+
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .onboarding-page {
+    padding: 20px 14px;
+  }
+
+  .onboarding-card {
+    padding: 25px 20px;
+
+    border-radius: 20px;
+  }
+
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-grid .full-width {
+    grid-column: auto;
+  }
+
+  .option-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .onboarding-card h1 {
+    font-size: 24px;
+  }
+}

@@ -1,0 +1,241 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --primary-green: #3b9b67;
+  --dark-green: #176b45;
+  --light-green: #eaf8f0;
+  --mint-green: #d8f2e3;
+  --soft-green: #f5fbf7;
+
+  --text-dark: #18352a;
+  --text-medium: #5b7166;
+  --text-light: #8b9d94;
+
+  --white: #ffffff;
+  --border: #dcebe2;
+
+  --danger: #e45b5b;
+  --warning: #e8a43a;
+
+  --shadow: 0 8px 25px rgba(40, 100, 65, 0.08);
+
+  --radius: 18px;
+}
+
+body {
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  background: var(--soft-green);
+  color: var(--text-dark);
+
+  min-height: 100vh;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.page-container {
+  min-height: 100vh;
+  width: 100%;
+}
+
+.auth-container {
+  min-height: 100vh;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 24px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+
+  background: var(--white);
+
+  padding: 40px;
+
+  border-radius: 24px;
+
+  box-shadow: var(--shadow);
+}
+
+.logo {
+  width: 58px;
+  height: 58px;
+
+  background: var(--primary-green);
+
+  border-radius: 17px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: white;
+
+  font-size: 25px;
+  font-weight: 800;
+
+  margin-bottom: 22px;
+}
+
+.logo-text {
+  color: var(--dark-green);
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.subtitle {
+  color: var(--text-medium);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.form-group {
+  margin-top: 22px;
+}
+
+.form-group label {
+  display: block;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  margin-bottom: 8px;
+
+  color: var(--text-dark);
+}
+
+.form-input {
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border: 1px solid var(--border);
+  border-radius: 12px;
+
+  outline: none;
+
+  font-size: 15px;
+
+  background: white;
+
+  transition: 0.2s;
+}
+
+.form-input:focus {
+  border-color: var(--primary-green);
+
+  box-shadow: 0 0 0 3px rgba(59, 155, 103, 0.1);
+}
+
+.primary-button {
+  width: 100%;
+
+  border: none;
+
+  padding: 15px;
+
+  margin-top: 26px;
+
+  border-radius: 12px;
+
+  background: var(--primary-green);
+  color: white;
+
+  font-size: 16px;
+  font-weight: 700;
+
+  transition: 0.2s;
+}
+
+.primary-button:hover {
+  background: var(--dark-green);
+  transform: translateY(-1px);
+}
+
+.secondary-button {
+  width: 100%;
+
+  padding: 14px;
+
+  margin-top: 12px;
+
+  border-radius: 12px;
+
+  border: 1px solid var(--border);
+
+  background: white;
+
+  color: var(--dark-green);
+
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.auth-footer {
+  text-align: center;
+
+  margin-top: 25px;
+
+  color: var(--text-medium);
+
+  font-size: 14px;
+}
+
+.auth-link {
+  color: var(--primary-green);
+  font-weight: 700;
+}
+
+.error-message {
+  margin-top: 10px;
+
+  color: var(--danger);
+
+  font-size: 13px;
+}
+
+@media (max-width: 500px) {
+  .auth-container {
+    padding: 15px;
+  }
+
+  .auth-card {
+    padding: 28px 22px;
+
+    border-radius: 20px;
+  }
+
+  .logo-text {
+    font-size: 25px;
+  }
+}
+.app-shell {
+  min-height: 100vh;
+  width: 100%;
+}
