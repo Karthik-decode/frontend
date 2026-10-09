@@ -38,10 +38,16 @@ function Plan() {
   const [progress, setProgress] = useState(initialProgress);
 
   useEffect(() => {
-    updateProfile({
-      planProgress: progress,
-    });
-  }, [progress]);
+    const savedProgress = userProfile?.planProgress || {};
+
+    // Avoid updating the profile again when it already contains
+    // the same progress, which prevents unnecessary context updates.
+    if (JSON.stringify(savedProgress) !== JSON.stringify(progress)) {
+      updateProfile({
+        planProgress: progress,
+      });
+    }
+  }, [progress, updateProfile, userProfile?.planProgress]);
 
   const days = useMemo(() => {
     const result = [];
@@ -154,9 +160,9 @@ function Plan() {
           </div>
 
           <img
-            src="/logo.png"
-            alt="Nutri-Track"
-            className="plan-logo"
+              src="/Logo.png"
+              alt="Nutri-Track"
+              className="page-header-logo"
           />
 
         </header>
