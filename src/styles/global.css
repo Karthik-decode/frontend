@@ -239,3 +239,23 @@ a {
   min-height: 100vh;
   width: 100%;
 }
+/* Shared header logo */
+
+.page-header-logo {
+  width: 60px;
+  height: 60px;
+  object-fit: scale-down;
+  flex-shrink: 0;
+  border-radius: 30%;
+
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+  .page-header-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 20%;
+  }
+}

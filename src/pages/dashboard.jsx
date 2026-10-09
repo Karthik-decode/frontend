@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../context/usercontext";
+import { getAccount } from "../services/authservice";
 import "../styles/dashboard.css";
 
 function Dashboard() {
@@ -23,9 +24,10 @@ function Dashboard() {
   const goalLabel =
     goalLabels[userProfile.goal] || "Personalized Goal";
 
+  const account = getAccount();
+
   const firstName =
-    userProfile.name ||
-    userProfile.email?.split("@")[0] ||
+    account?.name ||
     "there";
 
   /*
@@ -76,16 +78,14 @@ function Dashboard() {
 
           <div className="dashboard-header-content">
 
-            <p className="dashboard-greeting">
-              Good day 👋
-            </p>
+            
 
             <h1>
               Hello, {firstName}
             </h1>
 
             <p className="dashboard-subtitle">
-              Here's your nutrition overview for today.
+              Here's your personalized nutrition.
             </p>
 
           </div>
@@ -140,8 +140,6 @@ function Dashboard() {
         {/* ========================================= */}
 
         <section className="overview-grid">
-
-          {/* Calorie Card */}
 
           <div className="calorie-card">
 
@@ -340,8 +338,6 @@ function Dashboard() {
 
           <div className="macro-grid">
 
-            {/* Protein */}
-
             <div className="macro-card protein-card">
 
               <div className="macro-card-top">
@@ -389,8 +385,6 @@ function Dashboard() {
             </div>
 
 
-            {/* Carbohydrates */}
-
             <div className="macro-card carbs-card">
 
               <div className="macro-card-top">
@@ -437,8 +431,6 @@ function Dashboard() {
 
             </div>
 
-
-            {/* Fat */}
 
             <div className="macro-card fat-card">
 
@@ -615,7 +607,7 @@ function Dashboard() {
               className="text-button"
               onClick={() => navigate("/today")}
             >
-              View all →
+              View →
             </button>
 
           </div>
@@ -657,9 +649,7 @@ function Dashboard() {
 
               </div>
 
-              <span className="meal-arrow">
-                →
-              </span>
+              
 
             </div>
 
@@ -698,9 +688,7 @@ function Dashboard() {
 
               </div>
 
-              <span className="meal-arrow">
-                →
-              </span>
+              
 
             </div>
 
@@ -739,9 +727,7 @@ function Dashboard() {
 
               </div>
 
-              <span className="meal-arrow">
-                →
-              </span>
+              
 
             </div>
 
@@ -778,133 +764,11 @@ function Dashboard() {
 
               </div>
 
-              <span className="meal-arrow">
-                →
-              </span>
+              
 
             </div>
 
           </div>
-
-        </section>
-
-
-        {/* ========================================= */}
-        {/* 30 DAY PLAN */}
-        {/* ========================================= */}
-
-        <section className="plan-preview">
-
-          <div className="plan-content">
-
-            <div className="plan-icon">
-              🌱
-            </div>
-
-            <div>
-
-              <p className="section-label">
-                30-DAY PLAN
-              </p>
-
-              <h2>
-                Stay consistent
-              </h2>
-
-              <p>
-                Track your daily diet adherence and
-                build healthier habits.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <button
-            className="primary-button dashboard-plan-button"
-            onClick={() => navigate("/plan")}
-          >
-            View 30-Day Plan
-            <span>→</span>
-          </button>
-
-        </section>
-
-
-        {/* ========================================= */}
-        {/* QUICK ACTIONS */}
-        {/* ========================================= */}
-
-        <section className="quick-actions">
-
-          <button
-            onClick={() => navigate("/today")}
-          >
-            <span className="quick-action-icon">
-              🍽️
-            </span>
-
-            <div>
-              <strong>
-                Today's Food
-              </strong>
-
-              <small>
-                View meals
-              </small>
-            </div>
-
-            <span className="quick-arrow">
-              →
-            </span>
-          </button>
-
-
-          <button
-            onClick={() => navigate("/plan")}
-          >
-            <span className="quick-action-icon">
-              📅
-            </span>
-
-            <div>
-              <strong>
-                30-Day Plan
-              </strong>
-
-              <small>
-                Track progress
-              </small>
-            </div>
-
-            <span className="quick-arrow">
-              →
-            </span>
-          </button>
-
-
-          <button
-            onClick={() => navigate("/settings")}
-          >
-            <span className="quick-action-icon">
-              ⚙️
-            </span>
-
-            <div>
-              <strong>
-                Settings
-              </strong>
-
-              <small>
-                Manage profile
-              </small>
-            </div>
-
-            <span className="quick-arrow">
-              →
-            </span>
-          </button>
 
         </section>
 

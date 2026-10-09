@@ -1,24 +1,35 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
 import { registerAccount } from "../../services/authservice";
 import { useAuth } from "../../context/authcontext";
+
 import "../../styles/auth.css";
 
 function Register() {
   const navigate = useNavigate();
   const { login } = useAuth();
 
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
+
   const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     setError("");
 
+    const normalizedName = name.trim();
     const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedName) {
+      setError("Please enter your name.");
+      return;
+    }
 
     if (!normalizedEmail) {
       setError("Please enter your email address.");
@@ -26,7 +37,9 @@ function Register() {
     }
 
     if (!/^\d{4}$/.test(pin)) {
-      setError("PIN must contain exactly 4 digits.");
+      setError(
+        "PIN must contain exactly 4 digits."
+      );
       return;
     }
 
@@ -35,10 +48,21 @@ function Register() {
       return;
     }
 
-    const result = registerAccount(
-      normalizedEmail,
-      pin
-    );
+    let result;
+
+    try {
+      result = registerAccount(
+        normalizedName,
+        normalizedEmail,
+        pin
+      );
+    } catch (err) {
+      setError(
+        err.message ||
+          "Unable to create your account."
+      );
+      return;
+    }
 
     if (!result.success) {
       setError(result.message);
@@ -68,6 +92,7 @@ function Register() {
         <div className="auth-card">
 
           {/* Logo */}
+
           <div className="auth-logo-wrapper">
             <img
               src="/Logo.png"
@@ -76,19 +101,55 @@ function Register() {
             />
           </div>
 
+
           {/* Heading */}
+
           <div className="auth-heading">
-            <h1>Create your account</h1>
+
+            <h1>
+              Create your account
+            </h1>
 
             <p>
               Start your personalized nutrition journey.
             </p>
+
           </div>
 
+
           {/* Registration Form */}
+
           <form onSubmit={handleSubmit}>
 
+            {/* Name */}
+
             <div className="form-group">
+
+              <label htmlFor="register-name">
+                Your name
+              </label>
+
+              <input
+                id="register-name"
+                type="text"
+                className="form-input"
+                placeholder="Enter your name"
+                value={name}
+                onChange={(e) =>
+                  setName(e.target.value)
+                }
+                autoComplete="name"
+                maxLength="50"
+                required
+              />
+
+            </div>
+
+
+            {/* Email */}
+
+            <div className="form-group">
+
               <label htmlFor="register-email">
                 Email address
               </label>
@@ -105,9 +166,14 @@ function Register() {
                 autoComplete="email"
                 required
               />
+
             </div>
 
+
+            {/* PIN */}
+
             <div className="form-group">
+
               <label htmlFor="register-pin">
                 Create 4-digit PIN
               </label>
@@ -119,9 +185,10 @@ function Register() {
                 placeholder="Create a 4-digit PIN"
                 value={pin}
                 onChange={(e) => {
-                  const value = e.target.value
-                    .replace(/\D/g, "")
-                    .slice(0, 4);
+                  const value =
+                    e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 4);
 
                   setPin(value);
                 }}
@@ -130,9 +197,14 @@ function Register() {
                 autoComplete="new-password"
                 required
               />
+
             </div>
 
+
+            {/* Confirm PIN */}
+
             <div className="form-group">
+
               <label htmlFor="confirm-pin">
                 Confirm PIN
               </label>
@@ -144,9 +216,10 @@ function Register() {
                 placeholder="Re-enter your 4-digit PIN"
                 value={confirmPin}
                 onChange={(e) => {
-                  const value = e.target.value
-                    .replace(/\D/g, "")
-                    .slice(0, 4);
+                  const value =
+                    e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 4);
 
                   setConfirmPin(value);
                 }}
@@ -155,35 +228,46 @@ function Register() {
                 autoComplete="new-password"
                 required
               />
+
             </div>
 
+
             {/* Remember Me */}
+
             <div className="auth-options">
 
               <label className="remember-option">
+
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) =>
-                    setRememberMe(e.target.checked)
+                    setRememberMe(
+                      e.target.checked
+                    )
                   }
                 />
 
                 <span>
                   Keep me signed in
                 </span>
+
               </label>
 
             </div>
 
+
             {/* Error */}
+
             {error && (
               <p className="auth-error">
                 {error}
               </p>
             )}
 
+
             {/* Register Button */}
+
             <button
               type="submit"
               className="auth-button"
@@ -193,14 +277,19 @@ function Register() {
 
           </form>
 
+
           {/* Footer */}
+
           <div className="auth-footer">
+
             <p>
               Already have an account?{" "}
+
               <Link to="/login">
                 Login
               </Link>
             </p>
+
           </div>
 
         </div>

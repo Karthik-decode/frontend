@@ -435,3 +435,101 @@
     padding: 8px;
   }
 }
+/* Meal Portion Guide */
+
+.meal-items {
+  margin-top: 18px;
+  padding: 15px;
+  background: var(--soft-green);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+
+.meal-items-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 10px;
+}
+
+.meal-items-title span {
+  font-size: 16px;
+}
+
+.meal-items-title strong {
+  color: var(--dark-green);
+  font-size: 13px;
+}
+
+.meal-items-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.meal-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.meal-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.meal-item:first-child {
+  padding-top: 2px;
+}
+
+.meal-item-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.meal-item-dot {
+  color: var(--primary-green);
+  font-size: 18px;
+  line-height: 1;
+}
+
+.meal-item-name {
+  color: var(--text-medium);
+  font-size: 13px;
+}
+
+.meal-item-quantity {
+  color: var(--dark-green);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.meal-item-quantity small {
+  color: var(--text-light);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Better mobile presentation */
+
+@media (max-width: 500px) {
+  .meal-items {
+    padding: 13px;
+  }
+
+  .meal-item {
+    gap: 10px;
+  }
+
+  .meal-item-name {
+    font-size: 12px;
+  }
+
+  .meal-item-quantity {
+    font-size: 12px;
+  }
+}

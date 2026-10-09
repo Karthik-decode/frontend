@@ -5,21 +5,23 @@ function getStorage(rememberMe = false) {
   return rememberMe ? localStorage : sessionStorage;
 }
 
-export function registerAccount(email, pin) {
+export function registerAccount(name, email, pin) {
+  const normalizedName = name?.trim();
   const normalizedEmail = email?.trim().toLowerCase();
+
+  if (!normalizedName) {
+    throw new Error("Name is required.");
+  }
 
   if (!normalizedEmail) {
     throw new Error("Email address is required.");
   }
 
   if (!/^\d{4}$/.test(pin)) {
-    throw new Error(
-      "PIN must contain exactly 4 digits."
-    );
+    throw new Error("PIN must contain exactly 4 digits.");
   }
 
-  const existingAccount =
-    localStorage.getItem(ACCOUNT_KEY);
+  const existingAccount = localStorage.getItem(ACCOUNT_KEY);
 
   if (existingAccount) {
     try {
@@ -28,8 +30,7 @@ export function registerAccount(email, pin) {
       if (account.email === normalizedEmail) {
         return {
           success: false,
-          message:
-            "An account with this email already exists.",
+          message: "An account with this email already exists.",
         };
       }
     } catch {
@@ -38,6 +39,7 @@ export function registerAccount(email, pin) {
   }
 
   const account = {
+    name: normalizedName,
     email: normalizedEmail,
     pin,
     createdAt: Date.now(),
@@ -50,6 +52,7 @@ export function registerAccount(email, pin) {
 
   return {
     success: true,
+    name: normalizedName,
     email: normalizedEmail,
   };
 }
@@ -64,16 +67,14 @@ export function loginAccount(
   if (!normalizedEmail) {
     return {
       success: false,
-      message:
-        "Please enter your email address.",
+      message: "Please enter your email address.",
     };
   }
 
   if (!/^\d{4}$/.test(pin)) {
     return {
       success: false,
-      message:
-        "PIN must contain exactly 4 digits.",
+      message: "PIN must contain exactly 4 digits.",
     };
   }
 
@@ -105,20 +106,19 @@ export function loginAccount(
   if (account.email !== normalizedEmail) {
     return {
       success: false,
-      message:
-        "Email or PIN is incorrect.",
+      message: "Email or PIN is incorrect.",
     };
   }
 
   if (account.pin !== pin) {
     return {
       success: false,
-      message:
-        "Email or PIN is incorrect.",
+      message: "Email or PIN is incorrect.",
     };
   }
 
   const session = {
+    name: account.name || "",
     email: normalizedEmail,
     authenticated: true,
     rememberMe,
@@ -167,9 +167,7 @@ export function getAuthSession() {
 export function isAuthenticated() {
   const session = getAuthSession();
 
-  return Boolean(
-    session?.authenticated
-  );
+  return Boolean(session?.authenticated);
 }
 
 export function logout() {

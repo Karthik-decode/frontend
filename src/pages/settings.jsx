@@ -1,9 +1,25 @@
-import React, { useState } from "react";
+import React, {
+  useRef,
+  useState,
+} from "react";
+
 import { useNavigate } from "react-router-dom";
 
-import { useAuth } from "../context/authcontext";
-import { useUser } from "../context/usercontext";
-import { calculateNutritionProfile } from "../services/nutritionservice";
+import {
+  useAuth,
+} from "../context/authcontext";
+
+import {
+  useUser,
+} from "../context/usercontext";
+
+import {
+  getAccount,
+} from "../services/authservice";
+
+import {
+  calculateNutritionProfile,
+} from "../services/nutritionservice";
 
 import "../styles/settings.css";
 
@@ -11,23 +27,68 @@ function Settings() {
   const navigate = useNavigate();
 
   const { logout } = useAuth();
-  const { userProfile, updateProfile } = useUser();
 
-  const [age, setAge] = useState(userProfile.age || "");
-  const [sex, setSex] = useState(userProfile.sex || "");
-  const [height, setHeight] = useState(userProfile.height || "");
-  const [weight, setWeight] = useState(userProfile.weight || "");
+  const {
+    userProfile,
+    updateProfile,
+  } = useUser();
 
-  const [dietPreference, setDietPreference] = useState(
-    userProfile.dietPreference || "vegetarian"
+  const fileInputRef = useRef(null);
+
+  const [showPhotoMenu, setShowPhotoMenu] =
+    useState(false);
+
+  const [age, setAge] = useState(
+    userProfile.age || ""
   );
+
+  const [sex, setSex] = useState(
+    userProfile.sex || ""
+  );
+
+  const [height, setHeight] = useState(
+    userProfile.height || ""
+  );
+
+  const [weight, setWeight] = useState(
+    userProfile.weight || ""
+  );
+
+  const [dietPreference, setDietPreference] =
+    useState(
+      userProfile.dietPreference ||
+        "vegetarian"
+    );
 
   const [goal, setGoal] = useState(
-    userProfile.goal || "maintain-weight"
+    userProfile.goal ||
+      "maintain-weight"
   );
 
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [message, setMessage] =
+    useState("");
+
+  const [error, setError] =
+    useState("");
+
+
+  /*
+   * Registered account name.
+   *
+   * The name is collected only during
+   * registration and does not need to be
+   * entered again during login.
+   */
+
+  const account = getAccount();
+
+  const displayName =
+    userProfile.name ||
+    account?.name ||
+    userProfile.email
+      ?.split("@")[0] ||
+    "there";
+
 
   const goalLabels = {
     "lose-weight": "Lose Weight",
@@ -35,15 +96,144 @@ function Settings() {
     "gain-weight": "Gain Weight",
   };
 
-  const planProgress = userProfile.planProgress || {};
 
-  const completedDays = Object.values(planProgress).filter(
-    (status) => status === "completed"
-  ).length;
+  const planProgress =
+    userProfile.planProgress || {};
 
-  const partialDays = Object.values(planProgress).filter(
-    (status) => status === "partial"
-  ).length;
+
+  const completedDays =
+    Object.values(planProgress).filter(
+      (status) =>
+        status === "completed"
+    ).length;
+
+
+  const partialDays =
+    Object.values(planProgress).filter(
+      (status) =>
+        status === "partial"
+    ).length;
+
+
+  /*
+   * PROFILE PHOTO
+   */
+
+  const profilePicture =
+    userProfile.profilePicture || "";
+
+
+  const openFilePicker = () => {
+    setShowPhotoMenu(false);
+
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+
+  const handlePhotoChange = (e) => {
+    const file =
+      e.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+
+    /*
+     * Only allow common image formats.
+     */
+
+    if (!file.type.startsWith("image/")) {
+      setError(
+        "Please select a valid image file."
+      );
+
+      return;
+    }
+
+
+    /*
+     * Keep the prototype lightweight.
+     */
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError(
+        "Please choose an image smaller than 5 MB."
+      );
+
+      return;
+    }
+
+
+    const reader =
+      new FileReader();
+
+    reader.onload = () => {
+      const imageData =
+        reader.result;
+
+      updateProfile({
+        profilePicture: imageData,
+      });
+
+      setError("");
+
+      setMessage(
+        "Profile picture updated."
+      );
+    };
+
+    reader.onerror = () => {
+      setError(
+        "Unable to read the selected image."
+      );
+    };
+
+    reader.readAsDataURL(file);
+
+    /*
+     * Allows selecting the same file again
+     * after removing/changing it.
+     */
+
+    e.target.value = "";
+  };
+
+
+  const removeProfilePicture = () => {
+    updateProfile({
+      profilePicture: "",
+    });
+
+    setShowPhotoMenu(false);
+
+    setMessage(
+      "Profile picture removed."
+    );
+  };
+
+
+  const handleAvatarClick = () => {
+    setError("");
+    setMessage("");
+
+    if (profilePicture) {
+      setShowPhotoMenu(
+        (previous) => !previous
+      );
+
+      return;
+    }
+
+    openFilePicker();
+  };
+
+
+  /*
+   * SAVE PROFILE
+   */
 
   const handleSave = (e) => {
     e.preventDefault();
@@ -51,9 +241,15 @@ function Settings() {
     setError("");
     setMessage("");
 
-    const numericAge = Number(age);
-    const numericHeight = Number(height);
-    const numericWeight = Number(weight);
+    const numericAge =
+      Number(age);
+
+    const numericHeight =
+      Number(height);
+
+    const numericWeight =
+      Number(weight);
+
 
     if (
       !numericAge ||
@@ -63,13 +259,19 @@ function Settings() {
       setError(
         "Please enter a valid age between 13 and 100."
       );
+
       return;
     }
 
+
     if (!sex) {
-      setError("Please select your sex.");
+      setError(
+        "Please select your sex."
+      );
+
       return;
     }
+
 
     if (
       !numericHeight ||
@@ -79,8 +281,10 @@ function Settings() {
       setError(
         "Please enter a valid height between 100 and 250 cm."
       );
+
       return;
     }
+
 
     if (
       !numericWeight ||
@@ -90,36 +294,48 @@ function Settings() {
       setError(
         "Please enter a valid weight between 25 and 300 kg."
       );
+
       return;
     }
+
 
     try {
       const updatedProfile = {
         ...userProfile,
+
         age: numericAge,
         sex,
         height: numericHeight,
         weight: numericWeight,
+
         dietPreference,
         goal,
       };
 
+
       const nutrition =
-        calculateNutritionProfile(updatedProfile);
+        calculateNutritionProfile(
+          updatedProfile
+        );
+
 
       updateProfile({
         age: numericAge,
         sex,
         height: numericHeight,
         weight: numericWeight,
+
         dietPreference,
         goal,
+
         nutrition,
       });
+
 
       setMessage(
         "Your profile and nutrition targets have been updated."
       );
+
     } catch (err) {
       console.error(err);
 
@@ -129,6 +345,11 @@ function Settings() {
     }
   };
 
+
+  /*
+   * LOGOUT
+   */
+
   const handleLogout = () => {
     logout();
 
@@ -137,130 +358,349 @@ function Settings() {
     });
   };
 
+
+  /*
+   * RESET PROFILE
+   */
+
   const handleReset = () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to reset your Nutri-Track profile? This will remove your saved nutrition data and 30-day progress."
-    );
+    const confirmed =
+      window.confirm(
+        "Are you sure you want to reset your Nutri-Track profile? This will remove your saved nutrition data and 30-day progress."
+      );
 
     if (!confirmed) {
       return;
     }
 
-    localStorage.removeItem("nutriTrackProfile");
+    localStorage.removeItem(
+      "nutriTrackProfile"
+    );
 
     navigate("/register", {
       replace: true,
     });
   };
 
+
   return (
     <div className="settings-page">
+
       <div className="settings-container">
 
-        {/* Header */}
+
+        {/* HEADER */}
 
         <header className="settings-header">
+
           <button
             className="back-circle"
-            onClick={() => navigate("/dashboard")}
+            onClick={() =>
+              navigate("/dashboard")
+            }
           >
             ←
           </button>
 
+
           <div>
+
             <p className="settings-header-label">
               ACCOUNT
             </p>
 
-            <h1>Settings</h1>
+            <h1>
+              Settings
+            </h1>
 
             <p>
               Manage your profile and nutrition preferences.
             </p>
+
           </div>
+
 
           <img
-            src="/logo.png"
+            src="/Logo.png"
             alt="Nutri-Track"
-            className="settings-logo"
+            className="page-header-logo"
           />
+
         </header>
 
-        {/* Profile Summary */}
+
+        {/* PROFILE SUMMARY */}
 
         <section className="profile-summary">
-          <div className="profile-avatar">
-            {userProfile.email
-              ? userProfile.email
-                  .charAt(0)
-                  .toUpperCase()
-              : "N"}
+
+
+          {/* Hidden file input */}
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handlePhotoChange}
+            style={{
+              display: "none",
+            }}
+          />
+
+
+          {/* PROFILE AVATAR */}
+
+          <div
+            style={{
+              position: "relative",
+              flexShrink: 0,
+            }}
+          >
+
+            <button
+              type="button"
+              className="profile-avatar"
+              onClick={handleAvatarClick}
+              aria-label={
+                profilePicture
+                  ? "Change or remove profile picture"
+                  : "Upload profile picture"
+              }
+              style={{
+                padding: 0,
+                overflow: "hidden",
+                border: "none",
+                cursor: "pointer",
+                position: "relative",
+              }}
+            >
+
+              {profilePicture ? (
+                <img
+                  src={profilePicture}
+                  alt={`${displayName} profile`}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
+              ) : (
+                <span>
+                  N
+                </span>
+              )}
+
+            </button>
+
+
+            {/* Photo actions */}
+
+            {showPhotoMenu &&
+              profilePicture && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 8px)",
+                    left: 0,
+                    zIndex: 20,
+
+                    width: "155px",
+
+                    padding: "8px",
+
+                    background:
+                      "var(--white)",
+
+                    border:
+                      "1px solid var(--border)",
+
+                    borderRadius: "14px",
+
+                    boxShadow:
+                      "0 12px 30px rgba(40, 100, 65, 0.14)",
+                  }}
+                >
+
+                  <button
+                    type="button"
+                    onClick={openFilePicker}
+                    style={{
+                      width: "100%",
+                      padding: "9px 10px",
+
+                      border: "none",
+                      borderRadius: "9px",
+
+                      background:
+                        "var(--soft-green)",
+
+                      color:
+                        "var(--text-dark)",
+
+                      fontFamily:
+                        "inherit",
+
+                      fontSize: "12px",
+                      fontWeight: 700,
+
+                      textAlign: "left",
+
+                      cursor: "pointer",
+                    }}
+                  >
+                    📷 Change photo
+                  </button>
+
+
+                  <button
+                    type="button"
+                    onClick={
+                      removeProfilePicture
+                    }
+                    style={{
+                      width: "100%",
+                      marginTop: "5px",
+
+                      padding: "9px 10px",
+
+                      border: "none",
+                      borderRadius: "9px",
+
+                      background:
+                        "transparent",
+
+                      color:
+                        "var(--danger)",
+
+                      fontFamily:
+                        "inherit",
+
+                      fontSize: "12px",
+                      fontWeight: 700,
+
+                      textAlign: "left",
+
+                      cursor: "pointer",
+                    }}
+                  >
+                    🗑 Remove photo
+                  </button>
+
+                </div>
+              )}
+
           </div>
 
+
+          {/* ACCOUNT NAME */}
+
           <div>
-            <span>Nutri-Track account</span>
+
+            
+
 
             <h2>
-              {userProfile.email || "Your account"}
+              {displayName}
             </h2>
+
 
             <p>
               {goalLabels[userProfile.goal] ||
                 "Personalized nutrition"}
             </p>
+
           </div>
+
         </section>
 
-        {/* Nutrition Overview */}
+
+        {/* NUTRITION OVERVIEW */}
 
         <section className="settings-overview">
+
           <div>
-            <span>Daily calories</span>
+
+            <span>
+              Daily calories
+            </span>
 
             <strong>
-              {userProfile.nutrition?.targetCalories ||
+              {userProfile.nutrition
+                ?.targetCalories ||
                 "--"}{" "}
               kcal
             </strong>
+
           </div>
 
+
           <div>
-            <span>Protein</span>
+
+            <span>
+              Protein
+            </span>
 
             <strong>
-              {userProfile.nutrition?.protein || "--"}g
+              {userProfile.nutrition
+                ?.protein ||
+                "--"}g
             </strong>
+
           </div>
 
+
           <div>
-            <span>30-day progress</span>
+
+            <span>
+              30-day progress
+            </span>
 
             <strong>
               {completedDays}
-              <small> completed</small>
+
+              <small>
+                {" "}completed
+              </small>
             </strong>
+
           </div>
+
         </section>
 
-        {/* Edit Profile */}
+
+        {/* EDIT PROFILE */}
 
         <section className="settings-card">
+
           <div className="settings-card-heading">
+
             <div>
-              <p>PERSONAL INFORMATION</p>
+
+              <p>
+                PERSONAL INFORMATION
+              </p>
 
               <h2>
                 Body profile
               </h2>
+
             </div>
 
-            <span>👤</span>
+            <span>
+              👤
+            </span>
+
           </div>
 
+
           <form onSubmit={handleSave}>
+
             <div className="settings-grid">
 
+
               <div className="form-group">
+
                 <label>
                   Age
                 </label>
@@ -272,12 +712,17 @@ function Settings() {
                   max="100"
                   value={age}
                   onChange={(e) =>
-                    setAge(e.target.value)
+                    setAge(
+                      e.target.value
+                    )
                   }
                 />
+
               </div>
 
+
               <div className="form-group">
+
                 <label>
                   Sex
                 </label>
@@ -286,9 +731,12 @@ function Settings() {
                   className="form-input"
                   value={sex}
                   onChange={(e) =>
-                    setSex(e.target.value)
+                    setSex(
+                      e.target.value
+                    )
                   }
                 >
+
                   <option value="">
                     Select
                   </option>
@@ -300,10 +748,14 @@ function Settings() {
                   <option value="female">
                     Female
                   </option>
+
                 </select>
+
               </div>
 
+
               <div className="form-group">
+
                 <label>
                   Height (cm)
                 </label>
@@ -315,12 +767,17 @@ function Settings() {
                   max="250"
                   value={height}
                   onChange={(e) =>
-                    setHeight(e.target.value)
+                    setHeight(
+                      e.target.value
+                    )
                   }
                 />
+
               </div>
 
+
               <div className="form-group">
+
                 <label>
                   Weight (kg)
                 </label>
@@ -333,36 +790,49 @@ function Settings() {
                   step="0.1"
                   value={weight}
                   onChange={(e) =>
-                    setWeight(e.target.value)
+                    setWeight(
+                      e.target.value
+                    )
                   }
                 />
+
               </div>
 
             </div>
 
-            {/* Food Preference */}
+
+            {/* FOOD PREFERENCE */}
 
             <div className="settings-subsection">
+
               <label className="settings-label">
                 Food preference
               </label>
+
 
               <div className="settings-options">
 
                 <button
                   type="button"
                   className={
-                    dietPreference === "vegetarian"
+                    dietPreference ===
+                    "vegetarian"
                       ? "settings-option active"
                       : "settings-option"
                   }
                   onClick={() =>
-                    setDietPreference("vegetarian")
+                    setDietPreference(
+                      "vegetarian"
+                    )
                   }
                 >
-                  <span>🥬</span>
+
+                  <span>
+                    🥬
+                  </span>
 
                   <div>
+
                     <strong>
                       Vegetarian
                     </strong>
@@ -370,8 +840,11 @@ function Settings() {
                     <small>
                       Vegetarian Indian meals
                     </small>
+
                   </div>
+
                 </button>
+
 
                 <button
                   type="button"
@@ -387,9 +860,13 @@ function Settings() {
                     )
                   }
                 >
-                  <span>🍗</span>
+
+                  <span>
+                    🍗
+                  </span>
 
                   <div>
+
                     <strong>
                       Non-Vegetarian
                     </strong>
@@ -397,35 +874,48 @@ function Settings() {
                     <small>
                       Includes eggs, chicken and fish
                     </small>
+
                   </div>
+
                 </button>
 
               </div>
+
             </div>
 
-            {/* Nutrition Goal */}
+
+            {/* NUTRITION GOAL */}
 
             <div className="settings-subsection">
+
               <label className="settings-label">
                 Nutrition goal
               </label>
+
 
               <div className="settings-options">
 
                 <button
                   type="button"
                   className={
-                    goal === "lose-weight"
+                    goal ===
+                    "lose-weight"
                       ? "settings-option active"
                       : "settings-option"
                   }
                   onClick={() =>
-                    setGoal("lose-weight")
+                    setGoal(
+                      "lose-weight"
+                    )
                   }
                 >
-                  <span>📉</span>
+
+                  <span>
+                    📉
+                  </span>
 
                   <div>
+
                     <strong>
                       Lose Weight
                     </strong>
@@ -433,23 +923,33 @@ function Settings() {
                     <small>
                       Controlled calorie deficit
                     </small>
+
                   </div>
+
                 </button>
+
 
                 <button
                   type="button"
                   className={
-                    goal === "maintain-weight"
+                    goal ===
+                    "maintain-weight"
                       ? "settings-option active"
                       : "settings-option"
                   }
                   onClick={() =>
-                    setGoal("maintain-weight")
+                    setGoal(
+                      "maintain-weight"
+                    )
                   }
                 >
-                  <span>⚖️</span>
+
+                  <span>
+                    ⚖️
+                  </span>
 
                   <div>
+
                     <strong>
                       Maintain Weight
                     </strong>
@@ -457,23 +957,33 @@ function Settings() {
                     <small>
                       Balanced calorie intake
                     </small>
+
                   </div>
+
                 </button>
+
 
                 <button
                   type="button"
                   className={
-                    goal === "gain-weight"
+                    goal ===
+                    "gain-weight"
                       ? "settings-option active"
                       : "settings-option"
                   }
                   onClick={() =>
-                    setGoal("gain-weight")
+                    setGoal(
+                      "gain-weight"
+                    )
                   }
                 >
-                  <span>📈</span>
+
+                  <span>
+                    📈
+                  </span>
 
                   <div>
+
                     <strong>
                       Gain Weight
                     </strong>
@@ -481,13 +991,17 @@ function Settings() {
                     <small>
                       Controlled calorie surplus
                     </small>
+
                   </div>
+
                 </button>
 
               </div>
+
             </div>
 
-            {/* Messages */}
+
+            {/* MESSAGES */}
 
             {error && (
               <p className="settings-error">
@@ -495,11 +1009,13 @@ function Settings() {
               </p>
             )}
 
+
             {message && (
               <p className="settings-success">
                 ✓ {message}
               </p>
             )}
+
 
             <button
               type="submit"
@@ -507,27 +1023,41 @@ function Settings() {
             >
               Save & Recalculate
             </button>
+
           </form>
+
         </section>
 
-        {/* Plan Progress */}
+
+        {/* PLAN PROGRESS */}
 
         <section className="settings-card">
+
           <div className="settings-card-heading">
+
             <div>
-              <p>YOUR PROGRESS</p>
+
+              <p>
+                YOUR PROGRESS
+              </p>
 
               <h2>
                 30-Day Plan
               </h2>
+
             </div>
 
-            <span>📅</span>
+            <span>
+              📅
+            </span>
+
           </div>
+
 
           <div className="settings-progress-row">
 
             <div>
+
               <strong>
                 {completedDays}
               </strong>
@@ -535,9 +1065,12 @@ function Settings() {
               <span>
                 Completed
               </span>
+
             </div>
 
+
             <div>
+
               <strong>
                 {partialDays}
               </strong>
@@ -545,7 +1078,9 @@ function Settings() {
               <span>
                 Partial
               </span>
+
             </div>
+
 
             <button
               onClick={() =>
@@ -556,9 +1091,11 @@ function Settings() {
             </button>
 
           </div>
+
         </section>
 
-        {/* Account Actions */}
+
+        {/* ACCOUNT ACTIONS */}
 
         <section className="account-actions">
 
@@ -566,9 +1103,13 @@ function Settings() {
             className="logout-button"
             onClick={handleLogout}
           >
-            <span>↪</span>
+
+            <span>
+              ↪
+            </span>
 
             <div>
+
               <strong>
                 Log out
               </strong>
@@ -576,16 +1117,23 @@ function Settings() {
               <small>
                 Sign out of this device
               </small>
+
             </div>
+
           </button>
+
 
           <button
             className="reset-button"
             onClick={handleReset}
           >
-            <span>♻</span>
+
+            <span>
+              ♻
+            </span>
 
             <div>
+
               <strong>
                 Reset profile
               </strong>
@@ -593,12 +1141,15 @@ function Settings() {
               <small>
                 Delete saved nutrition profile
               </small>
+
             </div>
+
           </button>
 
         </section>
 
       </div>
+
     </div>
   );
 }
