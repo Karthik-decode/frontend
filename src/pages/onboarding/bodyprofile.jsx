@@ -1,27 +1,43 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/usercontext";
 import "../../styles/onboarding.css";
 
 function BodyProfile() {
   const navigate = useNavigate();
-  const { userProfile, updateProfile } = useUser();
+  const { userProfile, updateProfile, profileLoading } = useUser();
 
-  const [age, setAge] = useState(userProfile.age || "");
-  const [sex, setSex] = useState(userProfile.sex || "");
-  const [height, setHeight] = useState(userProfile.height || "");
-  const [weight, setWeight] = useState(userProfile.weight || "");
+  const [age, setAge] = useState(userProfile.age ?? "");
+  const [sex, setSex] = useState(userProfile.sex ?? "");
+  const [height, setHeight] = useState(userProfile.height ?? "");
+  const [weight, setWeight] = useState(userProfile.weight ?? "");
 
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const handleContinue = (e) => {
+  useEffect(() => {
+    setAge(userProfile.age ?? "");
+    setSex(userProfile.sex ?? "");
+    setHeight(userProfile.height ?? "");
+    setWeight(userProfile.weight ?? "");
+  }, [
+    userProfile.age,
+    userProfile.sex,
+    userProfile.height,
+    userProfile.weight,
+  ]);
+
+  const handleContinue = async (e) => {
     e.preventDefault();
+
+    if (saving) return;
 
     const numericAge = Number(age);
     const numericHeight = Number(height);
     const numericWeight = Number(weight);
 
-    if (!numericAge || numericAge < 13 || numericAge > 100) {
+    if (!age || !numericAge || numericAge < 13 || numericAge > 100) {
       setError("Please enter a valid age between 13 and 100.");
       return;
     }
@@ -32,6 +48,7 @@ function BodyProfile() {
     }
 
     if (
+      !height ||
       !numericHeight ||
       numericHeight < 100 ||
       numericHeight > 250
@@ -41,6 +58,7 @@ function BodyProfile() {
     }
 
     if (
+      !weight ||
       !numericWeight ||
       numericWeight < 25 ||
       numericWeight > 300
@@ -49,20 +67,30 @@ function BodyProfile() {
       return;
     }
 
-    updateProfile({
-      age: numericAge,
-      sex,
-      height: numericHeight,
-      weight: numericWeight,
-    });
+    setError("");
+    setSaving(true);
 
-    navigate("/diet-preference");
+    try {
+      await updateProfile({
+        age: numericAge,
+        sex,
+        height: numericHeight,
+        weight: numericWeight,
+      });
+
+      navigate("/diet-preference");
+    } catch (err) {
+      setError(
+        err.message || "Unable to save your profile. Please try again."
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <div className="onboarding-page">
       <div className="onboarding-container">
-
         <div className="onboarding-header">
           <img
             src="/logo.png"
@@ -78,7 +106,6 @@ function BodyProfile() {
         </div>
 
         <div className="onboarding-card">
-
           <h1>Let's understand your body</h1>
 
           <p className="onboarding-description">
@@ -87,12 +114,9 @@ function BodyProfile() {
           </p>
 
           <form onSubmit={handleContinue}>
-
             <div className="profile-grid">
-
               <div className="form-group">
                 <label>Age</label>
-
                 <input
                   className="form-input"
                   type="number"
@@ -101,16 +125,17 @@ function BodyProfile() {
                   placeholder="e.g. 21"
                   value={age}
                   onChange={(e) => setAge(e.target.value)}
+                  required
                 />
               </div>
 
               <div className="form-group">
                 <label>Sex</label>
-
                 <select
                   className="form-input"
                   value={sex}
                   onChange={(e) => setSex(e.target.value)}
+                  required
                 >
                   <option value="">Select</option>
                   <option value="male">Male</option>
@@ -120,7 +145,6 @@ function BodyProfile() {
 
               <div className="form-group">
                 <label>Height (cm)</label>
-
                 <input
                   className="form-input"
                   type="number"
@@ -129,12 +153,12 @@ function BodyProfile() {
                   placeholder="e.g. 175"
                   value={height}
                   onChange={(e) => setHeight(e.target.value)}
+                  required
                 />
               </div>
 
               <div className="form-group">
                 <label>Weight (kg)</label>
-
                 <input
                   className="form-input"
                   type="number"
@@ -144,13 +168,13 @@ function BodyProfile() {
                   placeholder="e.g. 70"
                   value={weight}
                   onChange={(e) => setWeight(e.target.value)}
+                  required
                 />
               </div>
-
             </div>
 
             {error && (
-              <p className="error-message">
+              <p className="error-message" role="alert">
                 {error}
               </p>
             )}
@@ -158,14 +182,16 @@ function BodyProfile() {
             <button
               type="submit"
               className="primary-button"
+              disabled={saving || profileLoading}
             >
-              Continue
+              {saving
+                ? "Saving..."
+                : profileLoading
+                ? "Loading profile..."
+                : "Continue"}
             </button>
-
           </form>
-
         </div>
-
       </div>
     </div>
   );

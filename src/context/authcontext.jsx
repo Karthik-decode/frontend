@@ -10,40 +10,30 @@ import {
   logout as logoutService,
 } from "../services/authservice";
 
-const AuthContext =
-  createContext();
+const AuthContext = createContext();
 
-export function AuthProvider({
-  children,
-}) {
-  const [
-    authSession,
-    setAuthSession,
-  ] = useState(() =>
-    getAuthSession()
+export function AuthProvider({ children }) {
+  const [authSession, setAuthSession] = useState(
+    () => getAuthSession()
   );
 
-  const isAuthenticated =
-    Boolean(
-      authSession?.authenticated
-    );
+  const isAuthenticated = Boolean(
+    authSession?.authenticated
+  );
 
-  const login = (
+  const login = async (
     email,
     pin,
     rememberMe = false
   ) => {
-    const result =
-      loginAccount(
-        email,
-        pin,
-        rememberMe
-      );
+    const result = await loginAccount(
+      email,
+      pin,
+      rememberMe
+    );
 
     if (result.success) {
-      setAuthSession(
-        result.session
-      );
+      setAuthSession(result.session);
     }
 
     return result;
@@ -69,7 +59,5 @@ export function AuthProvider({
 }
 
 export function useAuth() {
-  return useContext(
-    AuthContext
-  );
+  return useContext(AuthContext);
 }

@@ -1,7 +1,8 @@
 import React, {
   useRef,
   useState,
-} from "react";
+  useEffect,
+} from "react"; 
 
 import { useNavigate } from "react-router-dom";
 
@@ -46,6 +47,8 @@ function Settings() {
     userProfile.sex || ""
   );
 
+  const [saving, setSaving] = useState(false);
+
   const [height, setHeight] = useState(
     userProfile.height || ""
   );
@@ -71,6 +74,25 @@ function Settings() {
   const [error, setError] =
     useState("");
 
+useEffect(() => {
+  setAge(userProfile.age ?? "");
+  setSex(userProfile.sex ?? "");
+  setHeight(userProfile.height ?? "");
+  setWeight(userProfile.weight ?? "");
+  setDietPreference(
+    userProfile.dietPreference || "vegetarian"
+  );
+  setGoal(
+    userProfile.goal || "maintain-weight"
+  );
+}, [
+  userProfile.age,
+  userProfile.sex,
+  userProfile.height,
+  userProfile.weight,
+  userProfile.dietPreference,
+  userProfile.goal,
+]); 
 
   /*
    * Registered account name.
@@ -235,115 +257,100 @@ function Settings() {
    * SAVE PROFILE
    */
 
-  const handleSave = (e) => {
-    e.preventDefault();
+  
+const handleSave = async (e) => {
+  e.preventDefault();
 
-    setError("");
-    setMessage("");
+  if (saving) return;
 
-    const numericAge =
-      Number(age);
+  setError("");
+  setMessage("");
 
-    const numericHeight =
-      Number(height);
+  const numericAge = Number(age);
+  const numericHeight = Number(height);
+  const numericWeight = Number(weight);
 
-    const numericWeight =
-      Number(weight);
+  if (
+    !Number.isFinite(numericAge) ||
+    numericAge < 13 ||
+    numericAge > 100
+  ) {
+    setError("Please enter a valid age between 13 and 100.");
+    return;
+  }
 
+  if (!sex) {
+    setError("Please select your sex.");
+    return;
+  }
 
-    if (
-      !numericAge ||
-      numericAge < 13 ||
-      numericAge > 100
-    ) {
-      setError(
-        "Please enter a valid age between 13 and 100."
-      );
+  if (
+    !Number.isFinite(numericHeight) ||
+    numericHeight < 100 ||
+    numericHeight > 250
+  ) {
+    setError("Please enter a valid height between 100 and 250 cm.");
+    return;
+  }
 
-      return;
-    }
+  if (
+    !Number.isFinite(numericWeight) ||
+    numericWeight < 25 ||
+    numericWeight > 300
+  ) {
+    setError("Please enter a valid weight between 25 and 300 kg.");
+    return;
+  }
 
+  if (!["vegetarian", "non-vegetarian"].includes(dietPreference)) {
+    setError("Please select a valid food preference.");
+    return;
+  }
 
-    if (!sex) {
-      setError(
-        "Please select your sex."
-      );
+  if (
+    !["lose-weight", "maintain-weight", "gain-weight"].includes(goal)
+  ) {
+    setError("Please select a valid nutrition goal.");
+    return;
+  }
 
-      return;
-    }
+  setSaving(true);
 
+  try {
+    const updatedProfile = {
+      age: numericAge,
+      sex,
+      height: numericHeight,
+      weight: numericWeight,
+      dietPreference,
+      goal,
+    };
 
-    if (
-      !numericHeight ||
-      numericHeight < 100 ||
-      numericHeight > 250
-    ) {
-      setError(
-        "Please enter a valid height between 100 and 250 cm."
-      );
+    const nutrition = calculateNutritionProfile({
+      ...userProfile,
+      ...updatedProfile,
+    });
 
-      return;
-    }
+    await updateProfile({
+      ...updatedProfile,
+      nutrition,
+    });
 
+    setMessage(
+      "Your profile and nutrition targets have been saved successfully."
+    );
+  } catch (err) {
+    console.error("Profile save failed:", err);
 
-    if (
-      !numericWeight ||
-      numericWeight < 25 ||
-      numericWeight > 300
-    ) {
-      setError(
-        "Please enter a valid weight between 25 and 300 kg."
-      );
+    setError(
+      err.message ||
+        "Unable to save your profile. Please try again."
+    );
+  } finally {
+    setSaving(false);
+  }
+};
 
-      return;
-    }
-
-
-    try {
-      const updatedProfile = {
-        ...userProfile,
-
-        age: numericAge,
-        sex,
-        height: numericHeight,
-        weight: numericWeight,
-
-        dietPreference,
-        goal,
-      };
-
-
-      const nutrition =
-        calculateNutritionProfile(
-          updatedProfile
-        );
-
-
-      updateProfile({
-        age: numericAge,
-        sex,
-        height: numericHeight,
-        weight: numericWeight,
-
-        dietPreference,
-        goal,
-
-        nutrition,
-      });
-
-
-      setMessage(
-        "Your profile and nutrition targets have been updated."
-      );
-
-    } catch (err) {
-      console.error(err);
-
-      setError(
-        "Unable to update your nutrition targets."
-      );
-    }
-  };
 
 
   /*
@@ -1018,11 +1025,12 @@ function Settings() {
 
 
             <button
-              type="submit"
-              className="primary-button"
-            >
-              Save & Recalculate
-            </button>
+  type="submit"
+  className="primary-button"
+  disabled={saving}
+>
+  {saving ? "Saving..." : "Save & Recalculate"}
+</button>
 
           </form>
 

@@ -1,38 +1,54 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../context/usercontext";
 import "../../styles/onboarding.css";
 
 function DietPreference() {
   const navigate = useNavigate();
-
-  const { userProfile, updateProfile } = useUser();
+  const { userProfile, updateProfile, profileLoading } = useUser();
 
   const [preference, setPreference] = useState(
     userProfile.dietPreference || ""
   );
 
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const handleContinue = () => {
+  useEffect(() => {
+    setPreference(userProfile.dietPreference || "");
+  }, [userProfile.dietPreference]);
+
+  const handleContinue = async () => {
+    if (saving) return;
+
     if (!preference) {
       setError("Please select your food preference.");
       return;
     }
 
-    updateProfile({
-      dietPreference: preference,
-    });
+    setError("");
+    setSaving(true);
 
-    navigate("/goal");
+    try {
+      await updateProfile({
+        dietPreference: preference,
+      });
+
+      navigate("/goal");
+    } catch (err) {
+      setError(
+        err.message || "Unable to save your food preference. Please try again."
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
     <div className="onboarding-page">
       <div className="onboarding-container">
-
         <div className="onboarding-header">
-
           <img
             src="/logo.png"
             alt="Nutri-Track"
@@ -44,11 +60,9 @@ function DietPreference() {
             <div className="step active"></div>
             <div className="step"></div>
           </div>
-
         </div>
 
         <div className="onboarding-card">
-
           <h1>What's your food preference?</h1>
 
           <p className="onboarding-description">
@@ -57,21 +71,21 @@ function DietPreference() {
           </p>
 
           <div className="option-grid">
-
             <button
               type="button"
               className={`option-card ${
-                preference === "vegetarian"
-                  ? "selected"
-                  : ""
+                preference === "vegetarian" ? "selected" : ""
               }`}
-              onClick={() => setPreference("vegetarian")}
+              onClick={() => {
+                setPreference("vegetarian");
+                setError("");
+              }}
+              disabled={saving || profileLoading}
+              aria-pressed={preference === "vegetarian"}
             >
               <div className="option-icon">🥬</div>
 
-              <div className="option-title">
-                Vegetarian
-              </div>
+              <div className="option-title">Vegetarian</div>
 
               <div className="option-description">
                 Plant-based foods, dairy and suitable
@@ -82,40 +96,38 @@ function DietPreference() {
             <button
               type="button"
               className={`option-card ${
-                preference === "non-vegetarian"
-                  ? "selected"
-                  : ""
+                preference === "non-vegetarian" ? "selected" : ""
               }`}
-              onClick={() =>
-                setPreference("non-vegetarian")
-              }
+              onClick={() => {
+                setPreference("non-vegetarian");
+                setError("");
+              }}
+              disabled={saving || profileLoading}
+              aria-pressed={preference === "non-vegetarian"}
             >
               <div className="option-icon">🍗</div>
 
-              <div className="option-title">
-                Non-Vegetarian
-              </div>
+              <div className="option-title">Non-Vegetarian</div>
 
               <div className="option-description">
                 Vegetarian foods plus suitable eggs,
                 chicken and fish options.
               </div>
             </button>
-
           </div>
 
           {error && (
-            <p className="error-message">
+            <p className="error-message" role="alert">
               {error}
             </p>
           )}
 
           <div className="onboarding-actions">
-
             <button
               type="button"
               className="back-button"
               onClick={() => navigate("/profile")}
+              disabled={saving}
             >
               Back
             </button>
@@ -124,15 +136,17 @@ function DietPreference() {
               type="button"
               className="primary-button"
               onClick={handleContinue}
+              disabled={saving || profileLoading}
               style={{ marginTop: 0 }}
             >
-              Continue
+              {saving
+                ? "Saving..."
+                : profileLoading
+                ? "Loading profile..."
+                : "Continue"}
             </button>
-
           </div>
-
         </div>
-
       </div>
     </div>
   );

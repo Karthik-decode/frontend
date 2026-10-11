@@ -533,3 +533,31 @@
     font-size: 12px;
   }
 }
+
+
+.replace-meal-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 8px 0 12px;
+  padding: 9px 14px;
+  border: 1px solid #cce8d3;
+  border-radius: 10px;
+  background: #f0faf2;
+  color: #237544;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.replace-meal-button:hover {
+  background: #e0f3e5;
+  transform: translateY(-1px);
+}
+
+.replace-meal-button:focus-visible {
+  outline: 2px solid #237544;
+  outline-offset: 3px;
+}

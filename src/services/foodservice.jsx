@@ -580,16 +580,47 @@ const nonVegetarianMeals = {
   ---------------------------------------------------------
 */
 
+
+function normalizeDietPreference(preference) {
+  const normalized = String(preference || "vegetarian")
+    .trim()
+    .toLowerCase()
+    .replace(/[\s_]+/g, "-");
+
+  return [
+    "non-vegetarian",
+    "nonvegetarian",
+    "non-veg",
+    "nonveg",
+    "non-vegetarian-diet",
+  ].includes(normalized)
+    ? "non-vegetarian"
+    : "vegetarian";
+}
+
 function getMealDatabase(preference) {
-  if (
-    preference === "non-vegetarian" ||
-    preference === "nonvegetarian"
-  ) {
-    return nonVegetarianMeals;
+  const normalizedPreference =
+    normalizeDietPreference(preference);
+
+  if (normalizedPreference === "vegetarian") {
+    return vegetarianMeals;
   }
 
-  return vegetarianMeals;
+  const containsEggChickenOrFish = (meal) =>
+    (meal.items || []).some((item) =>
+      /\b(egg|eggs|chicken|fish)\b/i.test(item.name)
+    );
+
+  return Object.fromEntries(
+    Object.entries(nonVegetarianMeals).map(
+      ([mealType, meals]) => [
+        mealType,
+        meals.filter(containsEggChickenOrFish),
+      ]
+    )
+  );
 }
+
 
 /*
   Scale a meal according to the user's calorie requirement.
@@ -899,5 +930,78 @@ export function calculateDailyMealTotals(
       carbohydrates: 0,
       fat: 0,
     }
+  );
+}
+
+export function getAlternativeMeal(
+  profile,
+  mealType,
+  currentMealName,
+  dayIndex = 0,
+  excludedNames = []
+) {
+  const preference =
+    profile?.dietPreference ||
+    profile?.diet ||
+    "vegetarian";
+
+  const nutrition = profile?.nutrition || {};
+  const database = getMealDatabase(preference);
+
+  const dailyCalories =
+    Number(nutrition.targetCalories) || 2000;
+
+  const targetCalories = getMealCalorieTarget(
+    dailyCalories,
+    mealType
+  );
+
+  const excluded = new Set([
+    currentMealName,
+    ...excludedNames,
+  ]);
+
+  const candidates = database[mealType] || [];
+
+  const alternatives = candidates.filter(
+    (meal) => !excluded.has(meal.name)
+  );
+
+  if (alternatives.length === 0) {
+    return null;
+  }
+
+  // Start at a different point in the list so
+  // replacement choices rotate between requests.
+  const startIndex =
+    Math.abs(dayIndex) % alternatives.length;
+
+  const rotated = [
+    ...alternatives.slice(startIndex),
+    ...alternatives.slice(0, startIndex),
+  ];
+
+  const bestMeal = rotated.reduce(
+    (best, meal) => {
+      if (!best) return meal;
+
+      const currentDifference = Math.abs(
+        meal.calories - targetCalories
+      );
+
+      const bestDifference = Math.abs(
+        best.calories - targetCalories
+      );
+
+      return currentDifference < bestDifference
+        ? meal
+        : best;
+    },
+    null
+  );
+
+  return scaleMeal(
+    bestMeal,
+    targetCalories / bestMeal.calories
   );
 }

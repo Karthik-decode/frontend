@@ -12,30 +12,40 @@ function Login() {
   const [pin, setPin] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    const result = login(email, pin, rememberMe);
-
-    if (!result.success) {
-      setError(result.message);
+    if (!/^\d{4}$/.test(pin)) {
+      setError("PIN must contain exactly 4 digits.");
       return;
     }
 
-    const destination = location.state?.from || "/dashboard";
+    setLoading(true);
 
-    navigate(destination, { replace: true });
+    try {
+      const result = await login(email, pin, rememberMe);
+
+      if (!result.success) {
+        setError(result.message || "Login failed.");
+        return;
+      }
+
+      const destination = location.state?.from || "/dashboard";
+      navigate(destination, { replace: true });
+    } catch (err) {
+      setError(err.message || "Unable to log in. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="auth-page">
       <div className="auth-container">
-
         <div className="auth-card">
-
-          {/* Logo */}
           <div className="auth-logo-wrapper">
             <img
               src="/Logo.png"
@@ -44,22 +54,16 @@ function Login() {
             />
           </div>
 
-          {/* Heading */}
           <div className="auth-heading">
             <h1>Login</h1>
-
             <p>
               Welcome back. Continue your nutrition journey.
             </p>
           </div>
 
-          {/* Login Form */}
           <form onSubmit={handleSubmit}>
-
             <div className="form-group">
-              <label htmlFor="email">
-                Email address
-              </label>
+              <label htmlFor="email">Email address</label>
 
               <input
                 id="email"
@@ -67,18 +71,14 @@ function Login() {
                 className="form-input"
                 placeholder="Enter your email"
                 value={email}
-                onChange={(e) =>
-                  setEmail(e.target.value)
-                }
+                onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
                 required
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="pin">
-                4-digit PIN
-              </label>
+              <label htmlFor="pin">4-digit PIN</label>
 
               <input
                 id="pin"
@@ -94,15 +94,13 @@ function Login() {
                   setPin(value);
                 }}
                 inputMode="numeric"
-                maxLength="4"
+                maxLength={4}
                 autoComplete="current-password"
                 required
               />
             </div>
 
-            {/* Remember Me */}
             <div className="auth-options">
-
               <label className="remember-option">
                 <input
                   type="checkbox"
@@ -112,31 +110,25 @@ function Login() {
                   }
                 />
 
-                <span>
-                  Keep me signed in
-                </span>
+                <span>Keep me signed in</span>
               </label>
-
             </div>
 
-            {/* Error */}
             {error && (
-              <p className="auth-error">
+              <p className="auth-error" role="alert">
                 {error}
               </p>
             )}
 
-            {/* Login Button */}
             <button
               type="submit"
               className="auth-button"
+              disabled={loading}
             >
-              Login
+              {loading ? "Logging in..." : "Login"}
             </button>
-
           </form>
 
-          {/* Footer */}
           <div className="auth-footer">
             <p>
               Don't have an account?{" "}
@@ -145,9 +137,7 @@ function Login() {
               </Link>
             </p>
           </div>
-
         </div>
-
       </div>
     </div>
   );

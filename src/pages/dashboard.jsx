@@ -6,7 +6,12 @@ import "../styles/dashboard.css";
 
 function Dashboard() {
   const navigate = useNavigate();
-  const { userProfile } = useUser();
+  const {
+  userProfile,
+  profileLoading,
+  profileError,
+  reloadProfile,
+} = useUser();
 
   const nutrition = userProfile.nutrition || {};
 
@@ -29,6 +34,35 @@ function Dashboard() {
   const firstName =
     account?.name ||
     "there";
+  
+  if (profileLoading) {
+    return (
+      <div className="dashboard-page">
+        <div className="dashboard-container">
+          <p>Loading your personalized nutrition...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (profileError && !userProfile.nutrition?.targetCalories) {
+    return (
+      <div className="dashboard-page">
+        <div className="dashboard-container">
+          <h2>Unable to load your nutrition profile</h2>
+          <p>{profileError}</p>
+
+          <button
+            type="button"
+            className="primary-button"
+            onClick={reloadProfile}
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   /*
    * Macro calorie calculations

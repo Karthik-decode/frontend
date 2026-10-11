@@ -17,8 +17,9 @@ function Register() {
   const [rememberMe, setRememberMe] = useState(true);
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     setError("");
@@ -37,9 +38,7 @@ function Register() {
     }
 
     if (!/^\d{4}$/.test(pin)) {
-      setError(
-        "PIN must contain exactly 4 digits."
-      );
+      setError("PIN must contain exactly 4 digits.");
       return;
     }
 
@@ -48,51 +47,54 @@ function Register() {
       return;
     }
 
-    let result;
+    setLoading(true);
 
     try {
-      result = registerAccount(
+      // Create the account in the Spring Boot backend.
+      const result = await registerAccount(
         normalizedName,
         normalizedEmail,
         pin
       );
+
+      if (!result.success) {
+        setError(result.message || "Unable to create your account.");
+        return;
+      }
+
+      // Log in using the newly registered backend account.
+      const loginResult = await login(
+        normalizedEmail,
+        pin,
+        rememberMe
+      );
+
+      if (!loginResult.success) {
+        setError(
+          loginResult.message ||
+            "Account created successfully, but login failed. Please log in."
+        );
+        return;
+      }
+
+      // Continue to profile setup after successful registration and login.
+      navigate("/profile", {
+        replace: true,
+      });
     } catch (err) {
       setError(
-        err.message ||
-          "Unable to create your account."
+        err.message || "Unable to create your account. Please try again."
       );
-      return;
+    } finally {
+      setLoading(false);
     }
-
-    if (!result.success) {
-      setError(result.message);
-      return;
-    }
-
-    const loginResult = login(
-      normalizedEmail,
-      pin,
-      rememberMe
-    );
-
-    if (!loginResult.success) {
-      setError(loginResult.message);
-      return;
-    }
-
-    navigate("/profile", {
-      replace: true,
-    });
   };
 
   return (
     <div className="auth-page">
       <div className="auth-container">
-
         <div className="auth-card">
-
           {/* Logo */}
-
           <div className="auth-logo-wrapper">
             <img
               src="/Logo.png"
@@ -101,33 +103,17 @@ function Register() {
             />
           </div>
 
-
           {/* Heading */}
-
           <div className="auth-heading">
-
-            <h1>
-              Create your account
-            </h1>
-
-            <p>
-              Start your personalized nutrition journey.
-            </p>
-
+            <h1>Create your account</h1>
+            <p>Start your personalized nutrition journey.</p>
           </div>
 
-
           {/* Registration Form */}
-
           <form onSubmit={handleSubmit}>
-
             {/* Name */}
-
             <div className="form-group">
-
-              <label htmlFor="register-name">
-                Your name
-              </label>
+              <label htmlFor="register-name">Your name</label>
 
               <input
                 id="register-name"
@@ -135,24 +121,17 @@ function Register() {
                 className="form-input"
                 placeholder="Enter your name"
                 value={name}
-                onChange={(e) =>
-                  setName(e.target.value)
-                }
+                onChange={(e) => setName(e.target.value)}
                 autoComplete="name"
-                maxLength="50"
+                maxLength={50}
                 required
+                disabled={loading}
               />
-
             </div>
 
-
             {/* Email */}
-
             <div className="form-group">
-
-              <label htmlFor="register-email">
-                Email address
-              </label>
+              <label htmlFor="register-email">Email address</label>
 
               <input
                 id="register-email"
@@ -160,23 +139,16 @@ function Register() {
                 className="form-input"
                 placeholder="Enter your email"
                 value={email}
-                onChange={(e) =>
-                  setEmail(e.target.value)
-                }
+                onChange={(e) => setEmail(e.target.value)}
                 autoComplete="email"
                 required
+                disabled={loading}
               />
-
             </div>
 
-
             {/* PIN */}
-
             <div className="form-group">
-
-              <label htmlFor="register-pin">
-                Create 4-digit PIN
-              </label>
+              <label htmlFor="register-pin">Create 4-digit PIN</label>
 
               <input
                 id="register-pin"
@@ -185,29 +157,23 @@ function Register() {
                 placeholder="Create a 4-digit PIN"
                 value={pin}
                 onChange={(e) => {
-                  const value =
-                    e.target.value
-                      .replace(/\D/g, "")
-                      .slice(0, 4);
+                  const value = e.target.value
+                    .replace(/\D/g, "")
+                    .slice(0, 4);
 
                   setPin(value);
                 }}
                 inputMode="numeric"
-                maxLength="4"
+                maxLength={4}
                 autoComplete="new-password"
                 required
+                disabled={loading}
               />
-
             </div>
 
-
             {/* Confirm PIN */}
-
             <div className="form-group">
-
-              <label htmlFor="confirm-pin">
-                Confirm PIN
-              </label>
+              <label htmlFor="confirm-pin">Confirm PIN</label>
 
               <input
                 id="confirm-pin"
@@ -216,84 +182,59 @@ function Register() {
                 placeholder="Re-enter your 4-digit PIN"
                 value={confirmPin}
                 onChange={(e) => {
-                  const value =
-                    e.target.value
-                      .replace(/\D/g, "")
-                      .slice(0, 4);
+                  const value = e.target.value
+                    .replace(/\D/g, "")
+                    .slice(0, 4);
 
                   setConfirmPin(value);
                 }}
                 inputMode="numeric"
-                maxLength="4"
+                maxLength={4}
                 autoComplete="new-password"
                 required
+                disabled={loading}
               />
-
             </div>
 
-
             {/* Remember Me */}
-
             <div className="auth-options">
-
               <label className="remember-option">
-
                 <input
                   type="checkbox"
                   checked={rememberMe}
-                  onChange={(e) =>
-                    setRememberMe(
-                      e.target.checked
-                    )
-                  }
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  disabled={loading}
                 />
 
-                <span>
-                  Keep me signed in
-                </span>
-
+                <span>Keep me signed in</span>
               </label>
-
             </div>
 
-
             {/* Error */}
-
             {error && (
-              <p className="auth-error">
+              <p className="auth-error" role="alert">
                 {error}
               </p>
             )}
 
-
             {/* Register Button */}
-
             <button
               type="submit"
               className="auth-button"
+              disabled={loading}
             >
-              Create account
+              {loading ? "Creating account..." : "Create account"}
             </button>
-
           </form>
 
-
           {/* Footer */}
-
           <div className="auth-footer">
-
             <p>
               Already have an account?{" "}
-
-              <Link to="/login">
-                Login
-              </Link>
+              <Link to="/login">Login</Link>
             </p>
-
           </div>
-
         </div>
-
       </div>
     </div>
   );
